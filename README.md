@@ -25,4 +25,5 @@ CESoundManager: FadeIn and FadeOut sound transition
 
 
 ## Progress Snapshots
-![] (swipe.gif)
+![] (wipe.gif)
+![] spread.gif
