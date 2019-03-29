@@ -25,5 +25,4 @@ CESoundManager: FadeIn and FadeOut sound transition
 
 
 ## Progress Snapshots
-![] (wipe.gif)
-![] spread.gif
+![Alt Text](https://github.com/sherryfan/CuttingEdge-VR-TransitionTool/raw/master/path/to/wipe.gif)
