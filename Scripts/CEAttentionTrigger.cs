@@ -13,11 +13,6 @@ public class CEAttentionTrigger : MonoBehaviour
     public TriggerType triggerType;
 
     [SerializeField]
-    private bool isDissolve;
-
-    //public bool gazeEnter, grabEnter;
-
-    [SerializeField]
     private GameObject scene1, scene2;
     [SerializeField]
     private float defaultTriggerDuration;
@@ -25,12 +20,13 @@ public class CEAttentionTrigger : MonoBehaviour
     private CECameraBrain _CameraBrain;
 
     [SerializeField]
-    private CEKeyObject targetInteractable;
+    private CEInteractable targetInteractable;
     [SerializeField]
     private float blendSpeed = 0.5f;
+[SerializeField]
+private List<GameObject> listToDisappear, listToAppear;
 
-
-    private bool dissolving;
+    public bool dissolving;
 
     static float t = 0.0f;
 
@@ -54,6 +50,12 @@ public class CEAttentionTrigger : MonoBehaviour
             {
                 // blending is complete
                 dissolving = false;
+                foreach (GameObject e in listToDisappear){
+                    e.SetActive(false);
+                }
+                foreach (GameObject e in listToAppear){
+                    e.SetActive(true);
+                }
             }
             else
             {
@@ -67,13 +69,6 @@ public class CEAttentionTrigger : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
-        if (Input.GetKey(KeyCode.Alpha2))
-        {
-            // GrabTriggerController.instance.isTimeBased = false;
-            // GrabTriggerController.instance.isDissolve = false;
-            // GrabTriggerController.instance.isTriggeredOnLookAway = true;
-        }
-
 
     }
 
@@ -82,32 +77,20 @@ public class CEAttentionTrigger : MonoBehaviour
         if (triggerType == TriggerType.OnInteractionEnter && _CameraBrain.BlendProcess == 0)
         {
             yield return new WaitForSeconds(defaultTriggerDuration);
-            Cut();
+            dissolving = true;
+            CESoundManager.Singleton.StartTransition();
         }
         else
         {// Not Time-based
             if (isLookAway && _CameraBrain.BlendProcess == 0)
             {
-                Cut();
+                dissolving = true;
+                CESoundManager.Singleton.StartTransition();
             }
 
             yield return null;
         }
     }
 
-    private void Cut()
-    {
-        if (isDissolve)
-        {
-            dissolving = true;
-            CESoundManager.Singleton.StartTransition();
-
-        }
-        else
-        {
-            scene1.SetActive(false);
-            scene2.SetActive(true);
-        }
-    }
 
 }

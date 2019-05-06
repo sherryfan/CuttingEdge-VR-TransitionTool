@@ -18,6 +18,10 @@ public class SetCorrectCameraHeight : MonoBehaviour
     [SerializeField]
     [Tooltip("Camera Height - overwritten by device settings when using Room Scale ")]
     float m_StationaryCameraYOffset = 1.36144f;
+    [SerializeField]
+    float m_CarHeightOffset = 0.62f;
+    [SerializeField]
+    bool m_InACar = false;
 
     [SerializeField]
     [Tooltip("GameObject to move to desired height off the floor (defaults to this object if none provided)")]
@@ -44,7 +48,7 @@ public class SetCorrectCameraHeight : MonoBehaviour
         if (m_TrackingSpace == TrackingSpace.Stationary)
         {
             XRDevice.SetTrackingSpaceType(TrackingSpaceType.Stationary);
-            InputTracking.Recenter();
+            // InputTracking.Recenter();
         }
         else if (m_TrackingSpace == TrackingSpace.RoomScale)
         {
@@ -53,8 +57,14 @@ public class SetCorrectCameraHeight : MonoBehaviour
         }
 
         //Move camera to correct height
-        if (m_CameraFloorOffsetObject)
-            m_CameraFloorOffsetObject.transform.localPosition = new Vector3(m_CameraFloorOffsetObject.transform.localPosition.x, cameraYOffset, m_CameraFloorOffsetObject.transform.localPosition.z);
+        if (m_CameraFloorOffsetObject) {
+            var yOffset = m_StationaryCameraYOffset;
+            if (m_InACar) {
+                yOffset += m_CarHeightOffset;
+            }
+            m_CameraFloorOffsetObject.transform.localPosition = new Vector3(m_CameraFloorOffsetObject.transform.localPosition.x, yOffset, m_CameraFloorOffsetObject.transform.localPosition.z);
+        }
+            
     }
 }
 

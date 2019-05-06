@@ -10,14 +10,15 @@ public class CEMontageController : MonoBehaviour
     static public CEMontageController Singleton;
 
     [SerializeField]
-    Vector3 MovementVec = new Vector3(0, 0, 4f);
+    Vector3 CarVelocity = new Vector3(0, 0, 4f);
+    float elapse = 0f;
     [SerializeField]
-    GameObject CamRig, Head, EndPoint;
+    float CutAt = 10f;
     [SerializeField]
     float StandToSeat = 0.5f;
     [SerializeField]
     string NextScene = "GS4Room";
-    [SerializeField]
+    // [SerializeField]
     CESceneHelper sceneHelper;
     private void Awake()
     {
@@ -39,27 +40,14 @@ public class CEMontageController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            SceneManager.LoadScene(0);
-        }
 
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            MovementVec = new Vector3(0, 0, 0f);
-        }
-
-
-        var tPos = CamRig.transform.position;
-        tPos += MovementVec * Time.deltaTime;
-        CamRig.transform.position = tPos;
-        Vector3 CamToEnd = EndPoint.transform.position - Head.transform.position;
-
-        float d = Vector3.Dot(CamToEnd, MovementVec);
-        if (d < 0)
-        {
-            // pass the end point           
-            LoadScene();
-        }
+       var tPos = CEUtilities.Singleton.GetCameraRig().transform.position;
+            tPos += CarVelocity * Time.deltaTime;
+            CEUtilities.Singleton.GetCameraRig().transform.position = tPos;
+            elapse += Time.deltaTime;
+            if (elapse > CutAt)
+            {
+                sceneHelper.LoadScene();
+            }
     }
 }

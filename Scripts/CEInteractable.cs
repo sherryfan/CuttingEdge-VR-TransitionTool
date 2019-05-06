@@ -1,16 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 // Author: Sherry Fan
-
-[RequireComponent(typeof(OVRGrabbable))]
-public class CEKeyObject : MonoBehaviour
+// This script should be attached with every object you will be interacte with
+// in the expereinece. Interactions currently including: gaze and grab.
+// [RequireComponent(typeof(OVRGrabbable))]
+public class CEInteractable : MonoBehaviour
 {
-
+    [SerializeField]
+    UnityEvent gazeEnter, gazeExit, gazeStay;
     [SerializeField]
     private float minGazeTime;
-    private VIVEGrabbable vGrabbable;
     private OVRGrabbable oGrabbable;
 
     private Material outline;
@@ -19,16 +21,12 @@ public class CEKeyObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (CEUtilities.Singleton.isVIVE)
-        {
-            vGrabbable = GetComponent<VIVEGrabbable>();
-        }
-        else
-        {
+        try {
             oGrabbable = GetComponent<OVRGrabbable>();
-
+            outline = GetComponent<MeshRenderer>().materials[1];
         }
-        outline = GetComponent<MeshRenderer>().materials[1];
+        catch (System.Exception) {}
+        
         gazeDuration = 0f;
     }
 
@@ -36,8 +34,7 @@ public class CEKeyObject : MonoBehaviour
     void Update()
     {
 
-        if ((oGrabbable != null && oGrabbable.isGrabbed)
-            || (vGrabbable != null && vGrabbable.isGrabbed))
+        if (oGrabbable != null && oGrabbable.isGrabbed)
         {
             if (!isHolding)
             {
@@ -48,20 +45,29 @@ public class CEKeyObject : MonoBehaviour
                 gazeDuration += Time.deltaTime;
             }
         }
+        if (isGazing) {
+            OnGazeStay();
+        }
     }
 
-    public void OnGazeEnter()
+    public virtual void OnGazeEnter()
     {
-        outline.SetFloat("_Thickness", 0.2f);
+        if (outline != null)
+            outline.SetFloat("_Thickness", 0.2f);
         gazeDuration = 0f;
         isGazing = true;
-        print("OnGazeEnter");
-
+        print("OnGazeEnter " + gameObject.name);
+        gazeEnter.Invoke();
+    }
+    public void OnGazeStay() {
+        gazeStay.Invoke();
     }
 
-    public void OnGazeExit()
+    public virtual void OnGazeExit()
     {
-        outline.SetFloat("_Thickness", 0f);
+        if (outline != null)
+            outline.SetFloat("_Thickness", 0f);
+        gazeExit.Invoke();
         isGazing = false;
         //print("Gaze Exit with gaze time " + gazeDuration);
 
@@ -73,8 +79,7 @@ public class CEKeyObject : MonoBehaviour
 
     public void LookawayFromGaze()
     {
-        if ((oGrabbable != null && oGrabbable.isGrabbed)
-            || (vGrabbable != null && vGrabbable.isGrabbed))
+        if ((oGrabbable != null && oGrabbable.isGrabbed))
         {
             print("look away triggered");
             StartCoroutine(CEAttentionTrigger.instance.OnCutTriggered(true));

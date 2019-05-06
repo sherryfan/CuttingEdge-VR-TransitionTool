@@ -4,60 +4,58 @@ using UnityEngine;
 
 public class CECameraSlaveCam : MonoBehaviour
 {
+    [HideInInspector]
     public RenderTexture targetTexture;
     [HideInInspector]
     public bool ConstructWorldPos = false;
     [HideInInspector]
     public bool IsSweep = false;
     public float SweepTime = 0.6f;
-    public Transform ScannerOrigin;
+    // [HideInInspector]
+    public Transform Scanner;
+    // [HideInInspector]
     public Material EffectMaterial;
+    [HideInInspector]
+    public CECameraBrain brain;
     public float ScanDistance;
+    public float SpeedMultiplier = 1f;
 
     private Camera _camera;
 
     // Demo Code
-    bool spreadScanning;
+    bool spreadCtrScanning;
 	Matrix4x4 leftEye, rightEye, leftToWorld, rightToWorld;
     IEnumerator sweep() {
         float elapse = 0f;
         while (elapse <= SweepTime) {
             elapse += Time.deltaTime;
-            EffectMaterial.SetFloat("_Tweener", Mathf.Clamp01(elapse / SweepTime + 0.3f));
+            EffectMaterial.SetFloat("_Tweener", Mathf.Clamp01(elapse / SweepTime));
             yield return null;
         }
-        spreadScanning = false;
+        spreadCtrScanning = false;
+    }
+    public void SetSweep(Vector3 dir, bool useCamDir) {
+        EffectMaterial.SetVector("_WorldSpaceViewDir", dir);
+        if (useCamDir)
+            EffectMaterial.SetVector("_WorldSpaceViewDir", _camera.transform.forward);
+        EffectMaterial.SetVector("_WorldSpaceScannerPos", _camera.transform.position);
     }
     public void TriggerTransition() {
-        EffectMaterial.SetVector("_WorldSpaceViewDir", _camera.transform.forward);
-        if (!spreadScanning) {
-            spreadScanning = true;
-            if (IsSweep) {
-                StartCoroutine(sweep());
-            }
+        if (IsSweep) {
+            StartCoroutine(sweep());
+            EffectMaterial.SetVector("_WorldSpaceViewDir", _camera.transform.forward);
+            EffectMaterial.SetVector("_WorldSpaceScannerPos", _camera.transform.position);
         }
-            
-        ScanDistance = 0;
+        else if (!spreadCtrScanning) {
+            spreadCtrScanning = true;
+            ScanDistance = 0;
+        }
     }
     void Update()
     {
-        if (spreadScanning)
+        if (spreadCtrScanning)
         {
-            ScanDistance += Time.deltaTime;
-
-        }
-
-        if (Input.GetKeyDown(KeyCode.C) && ConstructWorldPos)
-        {
-            EffectMaterial.SetVector("_WorldSpaceViewDir", _camera.transform.forward);
-            if (!spreadScanning) {
-                spreadScanning = true;
-                if (IsSweep) {
-                    StartCoroutine(sweep());
-                }
-            }
-                
-            ScanDistance = 0;
+            ScanDistance += Time.deltaTime * SpeedMultiplier;
         }
 
     }
@@ -109,12 +107,21 @@ public class CECameraSlaveCam : MonoBehaviour
     void OnRenderImage(RenderTexture src, RenderTexture dst)
     {
         if (ConstructWorldPos){
-            EffectMaterial.SetVector("_WorldSpaceScannerPos", ScannerOrigin.position);
-            EffectMaterial.SetFloat("_ScanDistance", ScanDistance);
+            if (brain.transitionStyle == CECameraBrain.TransitionStyle.spread_center) {
+                EffectMaterial.SetVector("_WorldSpaceScannerPos", Scanner.position);
+                EffectMaterial.SetFloat("_ScanDistance", ScanDistance * ScanDistance);
+            }
+            if (brain.transitionStyle == CECameraBrain.TransitionStyle.spread_dir) {
+                EffectMaterial.SetVector("_WorldSpaceScannerDir", Scanner.forward);
+                EffectMaterial.SetFloat("_ScanDistance", Vector3.Dot(Scanner.position, Scanner.forward));
+                // Debug.Log(Vector3.Dot(Scanner.position, Scanner.forward));
+            }
+            
             Graphics.Blit(src, targetTexture, EffectMaterial);
         }
         else {
             Graphics.Blit(src, targetTexture);
         }
+        Graphics.Blit(src, dst);
     }
 }
