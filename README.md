@@ -4,12 +4,12 @@ A Unity VR Toolkit developed at CMU ETC Project Cutting Edge. This toolkit help 
 ## Features:
 Camera Blending  
 Camera Recalibration  
-Attention Detection - TODO  
+Attention Detection
 Interaction Trigger: Gaze, Grab  
 Scene Management:  Load/Reload, Prepare Loading  
 Sound Management:   
 Keep audio playing through scene transitions  
-Interactive sound queue (to be renamed)  
+Integrated with Wwise
 
 ## Script Structure:
 Sequence Controller: one GameFlow Controller for each example sequence  
