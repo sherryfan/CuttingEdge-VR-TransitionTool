@@ -4,11 +4,11 @@ A Unity VR Toolkit developed at CMU ETC Project Cutting Edge. This toolkit help 
 ## Features:
 Camera Blending  
 Camera Recalibration  
-Attention Detection
-Interaction Trigger: Gaze, Grab  
+Attention Detection System
+Sync Tool
+Frame Fading
+Interaction Trigger: Gaze, Grab, HeadRotation 
 Scene Management:  Load/Reload, Prepare Loading  
-Sound Management:   
-Keep audio playing through scene transitions  
 Integrated with Wwise
 
 ## Script Structure:
@@ -19,9 +19,11 @@ CECameraSlaveCam: On the blending cameras
 CEMindPalaceController: On the parent object of CE_MindPalace (prefab)  
 CESceneHelper: On a designated game manager assembly game object  
 CESync: On the grounding game object to be synced  
-CEUtilities: On a designated game manager assembly game object (todo)  
-CECollisionHelper: tobe deleted  
-CESoundManager: FadeIn and FadeOut sound transition  
+CEUtilities: On a designated game manager assembly game object 
+CECameraFOV: On main camera for attention detection system
+CEMontageController: prefab/in scene controller
+CEWhiteFrame: On center eye anchor
+
 
 
 ## Progress Snapshots
